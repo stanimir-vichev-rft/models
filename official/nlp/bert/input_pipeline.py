@@ -36,7 +36,7 @@ def single_file_dataset(input_file, name_to_features, num_samples=None):
   """Creates a single-file dataset to be passed for BERT custom training."""
   # For training, we want a lot of parallel reading and shuffling.
   # For eval, we want no shuffling and parallel reading doesn't matter.
-  d = tf.data.TFRecordDataset(input_file)
+  d = tf.data.TFRecordDataset(input_file, compression_type='GZIP')
   if num_samples:
     d = d.take(num_samples)
   d = d.map(
@@ -108,7 +108,7 @@ def create_pretrain_dataset(input_patterns,
   # parallel. You may want to increase this number if you have a large number of
   # CPU cores.
   dataset = dataset.interleave(
-      tf.data.TFRecordDataset,
+      lambda x: tf.data.TFRecordDataset(x, compression_type='GZIP'),
       cycle_length=8,
       num_parallel_calls=tf.data.experimental.AUTOTUNE)
 
